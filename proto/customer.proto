@@ -1,0 +1,12 @@
+syntax = "proto3";
+option csharp_namespace = "Customer.Grpc";
+
+service CustomerProfile {
+  rpc GetProfile (GetProfileRequest) returns (GetProfileResponse);
+  rpc UpsertProfile (UpsertProfileRequest) returns (UpsertProfileResponse);
+}
+
+message GetProfileRequest { string user_id = 1; }
+message GetProfileResponse { string user_id = 1; string name = 2; string city = 3; }
+message UpsertProfileRequest { string user_id = 1; string name = 2; string city = 3; }
+message UpsertProfileResponse { bool ok = 1; }

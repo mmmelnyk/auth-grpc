@@ -1,0 +1,12 @@
+syntax = "proto3";
+option csharp_namespace = "Auth.Grpc";
+
+service AuthValidation {
+  rpc ValidateToken (ValidateTokenRequest) returns (ValidateTokenResponse);
+  rpc GetUserClaims (GetUserClaimsRequest) returns (GetUserClaimsResponse);
+}
+
+message ValidateTokenRequest { string access_token = 1; }
+message ValidateTokenResponse { bool valid = 1; string user_id = 2; }
+message GetUserClaimsRequest { string user_id = 1; }
+message GetUserClaimsResponse { map<string,string> claims = 1; }
