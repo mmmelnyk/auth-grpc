@@ -9,6 +9,7 @@ var cfg = b.Configuration;
 
 b.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
    .AddJwtBearer(o => o.RequireHttpsMetadata = false);
+b.Services.AddAuthorization();
 
 // register a typed gRPC client for CustomerProfile
 b.Services.AddGrpcClient<CustomerProfile.CustomerProfileClient>(o =>

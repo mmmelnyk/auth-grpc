@@ -63,6 +63,13 @@ dotnet add src/Common/Common.Observability package Serilog.AspNetCore
 dotnet add src/Common/Common.Locks package StackExchange.Redis 
 dotnet add src/Common/Common.Locks package RedLock.net
 
+# additional tools
+brew install grpcurl
+
+add reflection for auth grpc
+dotnet add src/Services/Auth/Auth.Grpc package Grpc.AspNetCore.Server.Reflection
+
+# Testing
 # to start the infrastructure
 docker compose up -d
 # in separate terminals
@@ -75,9 +82,3 @@ ASPNETCORE_URLS=http://localhost:5002 dotnet run --project src/Services/Customer
 # Customer.Grpc
 ASPNETCORE_URLS=http://localhost:5003 dotnet run --project src/Services/Customer/Customer.Grpc --no-launch-profile
 
-
-additional tools
-brew install grpcurl
-
-add reflection for auth grpc
-dotnet add src/Services/Auth/Auth.Grpc package Grpc.AspNetCore.Server.Reflection
