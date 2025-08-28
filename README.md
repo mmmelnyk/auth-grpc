@@ -70,9 +70,10 @@ add reflection for auth grpc
 dotnet add src/Services/Auth/Auth.Grpc package Grpc.AspNetCore.Server.Reflection
 
 # Testing
-# to start the infrastructure
+# start the infrastructure
 docker compose up -d
-# in separate terminals
+
+# run services in separate terminals
 # Auth.API
 ASPNETCORE_URLS=http://localhost:5000 dotnet run --project src/Services/Auth/Auth.API --no-launch-profile
 # Auth.Grpc
