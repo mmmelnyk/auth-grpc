@@ -73,13 +73,34 @@ dotnet add src/Services/Auth/Auth.Grpc package Grpc.AspNetCore.Server.Reflection
 # start the infrastructure
 docker compose up -d
 
-# run services in separate terminals
+# run services in separate terminals with dev profiles
 # Auth.API
-ASPNETCORE_URLS=http://localhost:5000 dotnet run --project src/Services/Auth/Auth.API --no-launch-profile
+ASPNETCORE_ENVIRONMENT=Development ASPNETCORE_URLS=http://localhost:5000 dotnet run --project src/Services/Auth/Auth.API --no-launch-profile
 # Auth.Grpc
-ASPNETCORE_URLS=http://localhost:5001 dotnet run --project src/Services/Auth/Auth.Grpc --no-launch-profile
+ASPNETCORE_ENVIRONMENT=Development ASPNETCORE_URLS=http://localhost:5001 dotnet run --project src/Services/Auth/Auth.Grpc --no-launch-profile
 # Customer.API
-ASPNETCORE_URLS=http://localhost:5002 dotnet run --project src/Services/Customer/Customer.API --no-launch-profile
+ASPNETCORE_ENVIRONMENT=Development ASPNETCORE_URLS=http://localhost:5002 dotnet run --project src/Services/Customer/Customer.API --no-launch-profile
 # Customer.Grpc
-ASPNETCORE_URLS=http://localhost:5003 dotnet run --project src/Services/Customer/Customer.Grpc --no-launch-profile
+ASPNETCORE_ENVIRONMENT=Development ASPNETCORE_URLS=http://localhost:5003 dotnet run --project src/Services/Customer/Customer.Grpc --no-launch-profile
+
+testing customer grpc
+grpcurl -plaintext -d '{"user_id":"u1","name":"Mykola","city":"Kyiv"}' \
+  localhost:5003 CustomerProfile/UpsertProfile
+
+grpcurl -plaintext -d '{"user_id":"u1"}' \
+  localhost:5003 CustomerProfile/GetProfile
+
+# Register
+curl -s -X POST http://localhost:5000/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"email":"u1@example.com","phone":"+380991112233","password":"pass"}'
+
+# Login
+curl -s -X POST http://localhost:5000/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"userId":"<id from register>","password":"pass"}'
+
+# Me (authorized)
+curl -s http://localhost:5000/auth/me \
+  -H "Authorization: Bearer <accessToken>"
 

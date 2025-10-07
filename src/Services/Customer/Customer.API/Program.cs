@@ -11,22 +11,37 @@ b.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
    .AddJwtBearer(o => o.RequireHttpsMetadata = false);
 b.Services.AddAuthorization();
 b.Services.AddHealthChecks();
-b.Services.AddAppBus(cfg, "svc-customer");
+// MassTransit + consumer
+b.Services.AddMassTransit(x =>
+{
+    x.AddConsumer<UserRegisteredConsumer>();
+
+    x.UsingRabbitMq((context, bus) =>
+    {
+        bus.Host(cfg["Rabbit:Host"] ?? "localhost", "/", h =>
+        {
+            h.Username(cfg["Rabbit:User"] ?? "guest");
+            h.Password(cfg["Rabbit:Pass"] ?? "guest");
+        });
+
+        // Let MassTransit create a queue for this consumer
+        bus.ConfigureEndpoints(context, new KebabCaseEndpointNameFormatter("svc-customer", false));
+    });
+});
 
 var app = b.Build();
 app.UseAuthentication();
 app.UseAuthorization();
 
-var profiles = new Dictionary<string, ProfileDto>();
-
 app.MapPut("/profile/me", async (ClaimsPrincipal user, IBus bus, ProfileDto dto) =>
 {
     var uid = user.FindFirst("sub")?.Value ?? "anonymous";
-    profiles[uid] = dto with { UserId = uid };
+    UserRegisteredConsumer.Profiles[dto.UserId] = dto;
     await bus.Publish(new ProfileUpdated(uid, "Name", dto.Name ?? ""));
     return Results.NoContent();
 }).RequireAuthorization();
 
-app.Run();
+// todo: dev only remove before deploy
+app.MapGet("/debug/profiles", () => UserRegisteredConsumer.Profiles);
 
-record ProfileDto(string? UserId, string? Name, string? City);
+app.Run();
